@@ -50,27 +50,6 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    /* Tabs */
-    .tabs {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .tabs button {
-      padding: 10px 20px;
-      margin: 0 5px;
-      background-color: #004080;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .tabs button:hover {
-      background-color: #0056b3;
-    }
-
     /* Section Title */
     .section-title {
       margin-top: 30px;
@@ -86,22 +65,25 @@
       margin: 20px auto;
       border: 1px solid #ccc;
       border-radius: 8px;
-      width: 90%;
-      height: calc(100vh - 100px);
-      opacity: 0;
-      transition: opacity 0.5s ease-in-out;
+      width: 100%;
+      height: 90vh; /* Adjust height dynamically based on viewport */
     }
 
-    iframe.loaded {
-      opacity: 1;
+    /* Fullscreen Button */
+    .fullscreen-button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      background-color: #004080;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
     }
 
-    /* Loading Spinner */
-    #loading {
-      text-align: center;
-      padding: 20px;
-      font-size: 1.2em;
-      color: #666;
+    .fullscreen-button:hover {
+      background-color: #0066cc;
     }
 
     /* Footer */
@@ -137,14 +119,32 @@
   </header>
 
   <main>
-    <div class="tabs">
-      <button onclick="loadContent('treemap_confirmed_byIssue.html')">Tree Map</button>
-      <button onclick="loadContent('category_network_no_tooltips.html')">Network</button>
-      <button onclick="toggleFullScreen()">Toggle Fullscreen</button>
-    </div>
+    <section>
+      <article>
+        <p><a href="https://www.springer.com/series/16796" target="_blank">The Open Access book series by the International Consortium on Landslides (ICL)</a> serves as a global platform for sharing advancements in landslide research and practical applications, contributing to the Kyoto Landslide Commitment 2020 and the 2030 Agenda for Sustainable Development Goals. It features diverse contributions, including research articles, case studies, activity reports, and educational tools, aimed at enhancing understanding and reducing landslide disaster risks.</p>
+        <p>As of December 2024, the Open Access book series has published six issues, featuring about 160 articles. These articles include approximately 570 distinct keywords. To provide an overview and assist in article searches, these keywords have been categorized into 14 groups, and a tree map has been created. The tree map allows users to view the keywords organized by category and access individual articles where specific keywords are used by navigating through the map. This tool enhances the usability of the series, enabling efficient exploration and a better understanding of the scope of the research.</p>
+        <p>
+          The keywords are categorized into the following 14 groups:
+          <strong>Case Studies and Regional Research, Disaster Risk Reduction (DRR), Mechanisms and Analysis, Technology and Tools, Natural Hazards and Climate Change, Social Collaboration, Geomorphology and Geology, Hydrology and Water Management, Infrastructure and Design, International Initiatives and Policy, Modeling and Simulation, Monitoring and Remote Sensing, Outreach and Education,</strong> and <strong>Prediction and Early Warning Systems</strong>.
+        </p>
+        <p>Clicking on a category allows you to view the keywords it contains. Keywords are organized into groups based on similarity, and selecting a group will display the detailed keywords within it. Clicking on a keyword will show the papers associated with that keyword. The paper titles are linked, enabling direct access to the papers. Additionally, you can use the slider at the bottom to view treemaps for specific issues. By default, the display includes results from all issues.</p>
+      </article>
+    </section>
 
-    <div id="loading">Loading...</div>
-    <iframe id="iframeID" src="treemap_confirmed_byIssue.html" title="Dynamic Content"></iframe>
+    <iframe id="treemap" src="treemap_confirmed_byIssue.html" title="Keyword Tree Map"></iframe>
+    <button class="fullscreen-button" onclick="openFullscreen('treemap')">全画面表示</button>
+
+    <section>
+      <article>
+        <p>We also provide a category network visualization. The category network visualization illustrates the relationships between keyword categories in the ICL Open Access book series. It provides insights into how different research areas are connected and identifies interdisciplinary themes within landslide research.</p>
+        <p>In the visualization, nodes (circles) represent keyword categories. Larger nodes indicate categories that appear more frequently or hold greater importance within the book series. Edges (lines) connecting the nodes show the relationships between these categories. The thickness of the lines reflects the strength of the connection; thicker lines signify stronger or more frequent overlaps between the categories.</p>
+        <p>The network often forms clusters, which are groups of closely linked nodes. These clusters represent interdisciplinary research themes or areas where topics commonly intersect. For users, this network visualization is a valuable tool. It not only highlights the key focus areas in landslide research but also reveals how different disciplines interact. This makes it easier to explore emerging trends, potential areas of collaboration, or gaps in current research.</p>
+        <p>You can interactively zoom in and out, and move the network visualization. Selecting individual nodes will highlight the related edges.</p>
+      </article>
+    </section>
+
+    <iframe id="network" src="category_network_no_tooltips.html" title="Category Network Visualization"></iframe>
+    <button class="fullscreen-button" onclick="openFullscreen('network')">全画面表示</button>
   </main>
 
   <footer>
@@ -152,37 +152,13 @@
   </footer>
 
   <script>
-    // Function to load content into iframe
-    function loadContent(src) {
-      const iframe = document.getElementById('iframeID');
-      const loading = document.getElementById('loading');
-      loading.style.display = 'block';
-      iframe.style.opacity = '0';
-      iframe.src = src;
-    }
-
-    // Event listener to remove loading spinner when iframe is loaded
-    document.getElementById('iframeID').addEventListener('load', function () {
-      document.getElementById('loading').style.display = 'none';
-      this.classList.add('loaded');
-    });
-
-    // Optional: Ensure iframe resizes dynamically if content height changes
-    window.addEventListener('message', (event) => {
-      if (event.origin.includes('springer.com')) { // Update the domain as necessary
-        const iframe = document.getElementById('iframeID');
-        iframe.style.height = event.data + 'px';
-      }
-    });
-
-    // Function to toggle fullscreen for iframe
-    function toggleFullScreen() {
-      const iframe = document.getElementById('iframeID');
+    function openFullscreen(iframeId) {
+      const iframe = document.getElementById(iframeId);
       if (iframe.requestFullscreen) {
         iframe.requestFullscreen();
       } else if (iframe.mozRequestFullScreen) { // Firefox
         iframe.mozRequestFullScreen();
-      } else if (iframe.webkitRequestFullscreen) { // Chrome, Safari, and Opera
+      } else if (iframe.webkitRequestFullscreen) { // Chrome, Safari, Opera
         iframe.webkitRequestFullscreen();
       } else if (iframe.msRequestFullscreen) { // IE/Edge
         iframe.msRequestFullscreen();
