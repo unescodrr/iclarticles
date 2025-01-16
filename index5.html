@@ -140,6 +140,7 @@
     <div class="tabs">
       <button onclick="loadContent('treemap_confirmed_byIssue.html')">Tree Map</button>
       <button onclick="loadContent('category_network_no_tooltips.html')">Network</button>
+      <button onclick="toggleFullScreen()">Toggle Fullscreen</button>
     </div>
 
     <div id="loading">Loading...</div>
@@ -173,6 +174,20 @@
         iframe.style.height = event.data + 'px';
       }
     });
+
+    // Function to toggle fullscreen for iframe
+    function toggleFullScreen() {
+      const iframe = document.getElementById('iframeID');
+      if (iframe.requestFullscreen) {
+        iframe.requestFullscreen();
+      } else if (iframe.mozRequestFullScreen) { // Firefox
+        iframe.mozRequestFullScreen();
+      } else if (iframe.webkitRequestFullscreen) { // Chrome, Safari, and Opera
+        iframe.webkitRequestFullscreen();
+      } else if (iframe.msRequestFullscreen) { // IE/Edge
+        iframe.msRequestFullscreen();
+      }
+    }
   </script>
 </body>
 </html>
