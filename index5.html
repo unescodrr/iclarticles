@@ -60,28 +60,13 @@
     }
 
     /* iFrame Styles */
-    .iframe-container {
-      position: relative;
-      width: 100%;
-      height: 60vh;
-    }
-
     iframe {
-      display: none;
-      width: 100%;
-      height: 100%;
+      display: block;
+      margin: 10px auto;
       border: 1px solid #ccc;
       border-radius: 8px;
-    }
-
-    .spinner {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.2em;
-      color: #0078D5;
-      text-align: center;
+      width: 100%;
+      height: 60vh; /* Adjust height for better readability */
     }
 
     /* Fullscreen Button */
@@ -146,10 +131,7 @@
       </article>
     </section>
 
-    <div class="iframe-container">
-      <div class="spinner" id="spinner-treemap">Loading...</div>
-      <iframe id="treemap" src="treemap_confirmed_byIssue.html" title="Keyword Tree Map"></iframe>
-    </div>
+    <iframe id="treemap" src="treemap_confirmed_byIssue.html" title="Keyword Tree Map"></iframe>
     <button class="fullscreen-button" onclick="openFullscreen('treemap')">Fullscreen</button>
 
     <section>
@@ -161,10 +143,7 @@
       </article>
     </section>
 
-    <div class="iframe-container">
-      <div class="spinner" id="spinner-network">Loading...</div>
-      <iframe id="network" src="category_network_no_tooltips.html" title="Category Network Visualization"></iframe>
-    </div>
+    <iframe id="network" src="category_network_no_tooltips.html" title="Category Network Visualization"></iframe>
     <button class="fullscreen-button" onclick="openFullscreen('network')">Fullscreen</button>
   </main>
 
@@ -187,16 +166,6 @@
         alert('Your browser does not support fullscreen mode.');
       }
     }
-
-    document.getElementById('treemap').onload = function() {
-      document.getElementById('spinner-treemap').style.display = 'none';
-      this.style.display = 'block';
-    };
-
-    document.getElementById('network').onload = function() {
-      document.getElementById('spinner-network').style.display = 'none';
-      this.style.display = 'block';
-    };
   </script>
 </body>
 </html>
