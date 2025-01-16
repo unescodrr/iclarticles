@@ -12,7 +12,8 @@
       padding: 0;
       font-family: Arial, sans-serif;
       line-height: 1.6;
-      background-color: #f9f9f9;
+      background-color: #f4f4f9;
+      color: #333;
     }
 
     body {
@@ -22,22 +23,40 @@
     /* Header */
     header {
       text-align: center;
-      margin-bottom: 20px;
+      padding: 20px;
+      background-color: #004080;
+      color: #fff;
+      border-radius: 8px;
+    }
+
+    header h1 {
+      font-size: 2em;
+      margin: 0;
+    }
+
+    header p {
+      font-size: 1.2em;
+      margin: 5px 0 0;
     }
 
     /* Main Content */
     main {
       margin: 20px auto;
       width: 90%;
+      max-width: 1200px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     /* Section Title */
     .section-title {
       margin-top: 30px;
       text-align: center;
-      font-size: 1.5em;
+      font-size: 1.8em;
       font-weight: bold;
-      color: #333;
+      color: #004080;
     }
 
     /* iFrame Styles */
@@ -45,6 +64,7 @@
       display: block;
       margin: 20px auto;
       border: 1px solid #ccc;
+      border-radius: 8px;
       width: 90%;
       height: 500px;
     }
@@ -53,9 +73,25 @@
     footer {
       margin-top: 20px;
       text-align: center;
-      padding: 20px 0;
-      background: #f0f0f0;
-      border-top: 1px solid #ccc;
+      padding: 20px;
+      background: #004080;
+      color: #fff;
+      border-radius: 8px;
+    }
+
+    footer p {
+      margin: 0;
+      font-size: 1em;
+    }
+
+    /* Buttons and Links */
+    a {
+      color: #004080;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -93,7 +129,7 @@
   </main>
 
   <footer>
-    Disaster Risk Reduction | UNESCO
+    <p>Disaster Risk Reduction | UNESCO</p>
   </footer>
 </body>
 </html>
