@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keyword Mapping for the ICL Open Access Book Series</title>
+  <style>
+    /* General Styles */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    body {
+      margin: 20px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 20px;
+      background-color: #004080;
+      color: #fff;
+      border-radius: 8px;
+    }
+
+    header h1 {
+      font-size: 2em;
+      margin: 0;
+    }
+
+    header p {
+      font-size: 1.2em;
+      margin: 5px 0 0;
+    }
+
+    /* Main Content */
+    main {
+      margin: 20px auto;
+      width: 90%;
+      max-width: 1200px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Tabs */
+    .tabs {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .tabs button {
+      padding: 10px 20px;
+      margin: 0 5px;
+      background-color: #004080;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .tabs button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Section Title */
+    .section-title {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #004080;
+    }
+
+    /* iFrame Styles */
+    iframe {
+      display: block;
+      margin: 20px auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 90%;
+      height: calc(100vh - 100px);
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    iframe.loaded {
+      opacity: 1;
+    }
+
+    /* Loading Spinner */
+    #loading {
+      text-align: center;
+      padding: 20px;
+      font-size: 1.2em;
+      color: #666;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 20px;
+      text-align: center;
+      padding: 20px;
+      background: #004080;
+      color: #fff;
+      border-radius: 8px;
+    }
+
+    footer p {
+      margin: 0;
+      font-size: 1em;
+    }
+
+    /* Buttons and Links */
+    a {
+      color: #004080;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Keyword Mapping for the ICL Open Access Book Series</h1>
+    <p>A global platform for advancing landslide research and applications.</p>
+  </header>
+
+  <main>
+    <div class="tabs">
+      <button onclick="loadContent('treemap_confirmed_byIssue.html')">Tree Map</button>
+      <button onclick="loadContent('category_network_no_tooltips.html')">Network</button>
+    </div>
+
+    <div id="loading">Loading...</div>
+    <iframe id="iframeID" src="treemap_confirmed_byIssue.html" title="Dynamic Content"></iframe>
+  </main>
+
+  <footer>
+    <p>Disaster Risk Reduction | UNESCO</p>
+  </footer>
+
+  <script>
+    // Function to load content into iframe
+    function loadContent(src) {
+      const iframe = document.getElementById('iframeID');
+      const loading = document.getElementById('loading');
+      loading.style.display = 'block';
+      iframe.style.opacity = '0';
+      iframe.src = src;
+    }
+
+    // Event listener to remove loading spinner when iframe is loaded
+    document.getElementById('iframeID').addEventListener('load', function () {
+      document.getElementById('loading').style.display = 'none';
+      this.classList.add('loaded');
+    });
+
+    // Optional: Ensure iframe resizes dynamically if content height changes
+    window.addEventListener('message', (event) => {
+      if (event.origin.includes('springer.com')) { // Update the domain as necessary
+        const iframe = document.getElementById('iframeID');
+        iframe.style.height = event.data + 'px';
+      }
+    });
+  </script>
+</body>
+</html>
