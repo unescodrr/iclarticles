@@ -1,7 +1,7 @@
 <html>
 <head><meta charset="utf-8" /></head>
 <body>
-    <div style="height:100%; width:100%;">                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+    <div>                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
         <script>/**
 * plotly.js v3.7.0
 * Copyright 2012-2026, Plotly, Inc.
@@ -3888,5 +3888,107 @@ return Plotly;
                         }).then(function(){
                             Plotly.animate('ef109d79-b4b9-4850-86b5-0d57a892d3d0', null);
                         })                };            </script>        </div>
+
+<script>
+(function () {
+  function whenReady(cb, tries) {
+    tries = tries || 0;
+    var gd = document.querySelector('.js-plotly-plot') || document.querySelector('.plotly-graph-div');
+    if (gd && gd.on && gd.data) return cb(gd);
+    if (tries > 60) return; // ~6s, then give up quietly
+    setTimeout(function () { whenReady(cb, tries + 1); }, 100);
+  }
+
+  whenReady(function (gd) {
+    // Viz -> Chat: a cell (category / keyword / article) was clicked
+    gd.on('plotly_click', function (data) {
+      if (!data || !data.points || !data.points.length) return;
+      var pt = data.points[0];
+      if (parent === window) return; // opened on its own, not in the page
+      parent.postMessage({
+        iclEvent: 'node-click',
+        source: 'treemap',
+        id: pt.id,       // full hierarchy path, e.g. "All keywords/Geomorphology and Geology/Cuesta"
+        label: pt.label  // just the leaf name
+      }, (location.origin === "null" ? "*" : location.origin));
+    });
+
+    // ADDED (2026-08-23, v5): maps a human-readable "Volume<N> Issue<M>"
+    // label (or "ALL") to this treemap's own slider step -- mirrors
+    // layout.sliders[0].steps EXACTLY (Volume1 Issue1 -> frame-0, ...,
+    // Volume4 Issue1 -> frame-6, Volume4 Issue2 -> frame-7, ALL -> frame-8).
+    // This table is NOT
+    // derived automatically from the slider config below -- if a new
+    // issue is published, this table needs updating (together with
+    // Trial_ICL_Chatbox_v5.html's VALID_ISSUE_LABELS) the next time this
+    // treemap is regenerated, same as worker.js's own volume/issue
+    // handling already requires.
+    var ISSUE_FRAME_MAP = {
+      "Volume1 Issue1": "frame-0",
+      "Volume1 Issue2": "frame-1",
+      "Volume2 Issue1": "frame-2",
+      "Volume2 Issue2": "frame-3",
+      "Volume3 Issue1": "frame-4",
+      "Volume3 Issue2": "frame-5",
+      "Volume4 Issue1": "frame-6",
+      "Volume4 Issue2": "frame-7",
+      "ALL": "frame-8"
+    };
+    var ISSUE_FRAME_LABELS_IN_ORDER = Object.keys(ISSUE_FRAME_MAP);
+
+    // Jumps to the slider step for `label` ("Volume2 Issue1", ..., "ALL"),
+    // and (belt-and-suspenders) explicitly syncs the visible slider handle
+    // to match -- Plotly's animate() normally keeps the handle in sync on
+    // its own when the frame name matches a slider step's args, but
+    // setting it here too means the handle is still correct even if that
+    // implicit sync ever doesn't fire.
+    function animateToLabel(label) {
+      var frame = ISSUE_FRAME_MAP[label];
+      if (!frame) return; // unrecognized label -- do nothing rather than guess
+      return Plotly.animate(gd, [frame], {
+        frame: { duration: 500, redraw: true },
+        mode: 'immediate'
+      }).then(function () {
+        var stepIndex = ISSUE_FRAME_LABELS_IN_ORDER.indexOf(label);
+        if (stepIndex > -1) Plotly.relayout(gd, { 'sliders[0].active': stepIndex });
+      });
+    }
+
+    // Chat -> Viz: parent asked us to zoom to a specific path, jump to a
+    // specific volume/issue, or reset back to the top level.
+    window.addEventListener('message', function (e) {
+      // REVISED (2026-11-18): only the page that contains this map may steer it.
+      if (!e.data || e.source !== parent) return;
+      if (e.data.iclEvent === 'focus-node') {
+        var path = e.data.path; // must match an "ids" value exactly, e.g. "All keywords/Geomorphology and Geology"
+        if (!path) return;
+        Plotly.restyle(gd, { level: path }, [0]);
+      } else if (e.data.iclEvent === 'focus-issue') {
+        // ADDED (2026-08-23, v5): "wow feature #4" -- moves the treemap's
+        // own Volume/Issue slider to match a volume/issue named in chat,
+        // e.g. "show me Volume 2 Issue 1 in the treemap". Resets the
+        // drill-down level back to the top at the same time: switching
+        // issues while zoomed into a category could land on a category
+        // with zero articles in that issue, which would just show a
+        // blank treemap and look broken.
+        var label = e.data.label;
+        if (!label || !ISSUE_FRAME_MAP[label]) return; // unrecognized label -- do nothing rather than guess
+        Plotly.restyle(gd, { level: 'All keywords' }, [0]);
+        animateToLabel(label);
+      } else if (e.data.iclEvent === 'reset-view') {
+        // "reset the treemap" / "zoom out" from chat -- resets BOTH
+        // dimensions: drill-down level back to the top ("All keywords" is
+        // the treemap's own top-level id, see Fig. 1(a) in the design
+        // paper / the breadcrumb's top entry), and (2026-08-23, v5) the
+        // issue slider back to "ALL" -- a reset that left the issue
+        // filter in place would be a confusing half-reset now that
+        // focus-issue exists.
+        Plotly.restyle(gd, { level: 'All keywords' }, [0]);
+        animateToLabel('ALL');
+      }
+    });
+  });
+})();
+</script>
 </body>
 </html>
