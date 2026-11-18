@@ -1676,6 +1676,9 @@
       .icl-welcome-facts { display: none; }
       #icl-pill { right: 84px; bottom: 24px; }
       #icl-launcher-label { display: none; }
+      /* ADDED (2026-11-18): room for the full title on phones; the "ICL"
+         circle repeats the title's first word. */
+      #icl-chat-avatar { display: none; }
     }
   </style>
 
@@ -3615,6 +3618,18 @@
 
         function showCard() {
           if (state !== "waiting" || isOpen) return;
+          // ADDED (2026-11-18): on phones the card covered most of the screen
+          // on arrival. Phones get only the small "Ask the Research
+          // Assistant" button next to the chat button.
+          if (window.matchMedia && window.matchMedia("(max-width: 480px)").matches) {
+            state = "pill";
+            showPill();
+            if (live) {
+              live.textContent = "";
+              setTimeout(() => { live.textContent = "ICL Research Assistant is available. Ask a question about the PLRT articles."; }, 60);
+            }
+            return;
+          }
           state = "card";
           card.classList.add("icl-show");
           scrollStart = window.scrollY;
@@ -4446,9 +4461,43 @@ ${qa}
       // matching source card's id at CLICK time (see jumpToCitationSource),
       // not here, so call order relative to addSources() doesn't matter --
       // the card just has to exist by the time someone actually clicks it.
+      // ADDED (2026-11-18): the model sometimes leaves out the line break
+      // between two list items ("...September 15, 202220. The ..." or
+      // "...Commitment 2020- International ..."). Puts each item back on its
+      // own line. Numbered items are split only at the list's own next
+      // number, so a year or another number is never split by mistake.
+      function splitMergedListItems(text) {
+        const out = [];
+        let expected = null;
+        for (const line of String(text).split("\n")) {
+          const num = line.match(/^\s*(\d{1,3})\.\s/);
+          if (num) {
+            expected = Number(num[1]) + 1;
+            let rest = line;
+            for (;;) {
+              const re = new RegExp("(\\S)(" + expected + ")\\.\\s+(?=[A-Z\u00C0-\u024F\u201C\u2018\u00AB\"'(\\[])");
+              const m = re.exec(rest);
+              if (!m || m.index < 3) break;
+              out.push(rest.slice(0, m.index + 1));
+              rest = rest.slice(m.index + 1);
+              expected++;
+            }
+            out.push(rest);
+            continue;
+          }
+          if (/^\s*[-\u2022*]\s/.test(line)) {
+            out.push(line.replace(/(\S)- (?=[A-Z\u201C"])/g, "$1\n- "));
+            continue;
+          }
+          if (line.trim()) expected = null;
+          out.push(line);
+        }
+        return out.join("\n");
+      }
+
       function linkifyCitations(bubble, msgId) {
         if (!msgId) return; // no id to target -- leave tags as plain text
-        const escaped = escapeHtml(bubble.textContent);
+        const escaped = escapeHtml(splitMergedListItems(bubble.textContent)); // REVISED (2026-11-18)
         bubble.innerHTML = escaped.replace(
           /\[(\d+)(,\s*[^\]]+)?\]/g,
           (match, num, rest) => {
