@@ -3903,7 +3903,7 @@ return Plotly;
     // Viz -> Chat: a cell (category / keyword / article) was clicked
     // ICL-ANALYTICS-2026-11-19: the issue slider, for the page's analytics
     gd.on('plotly_sliderchange', function (e) {
-      if (parent === window || !e || !e.step) return;
+      if (parent === window || !e || !e.step || !e.interaction) return; // only a visitor's own slider moves, not the page's start-up animation
       parent.postMessage({ iclEvent: 'issue-change', label: e.step.label }, (location.origin === "null" ? "*" : location.origin));
     });
     gd.on('plotly_click', function (data) {
