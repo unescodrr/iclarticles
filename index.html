@@ -161,7 +161,7 @@
   </main>
 
   <footer>
-    <p>Disaster Risk Reduction | UNESCO</p>
+    <p>Disaster Risk Reduction | UNESCO &middot; <a href="privacy.html" style="color:inherit">Privacy</a></p>
   </footer>
 
   <script>
@@ -2828,6 +2828,7 @@
             // Just DOI/title, not the full source card metadata -- enough
             // to know which article(s) the flagged answer drew from.
             sources: (sources || []).map((s) => s.doi || s.title).filter(Boolean),
+            ...(window.iclPv ? { pv: window.iclPv } : {}), // ADDED (2026-11-19): analytics
           }),
         }).catch(() => {});
       }
@@ -5400,6 +5401,7 @@ ${qa}
               question: (englishPrompt || question).replace(/[\u2068\u2069]/g, ""),
               history: conversationHistory.map((h) => ({ role: h.role, content: String(h.content).replace(/[\u2068\u2069]/g, "") })),
               lang: currentLang,
+              ...(window.iclPv ? { pv: window.iclPv } : {}), // ADDED (2026-11-19): analytics
               ...(englishPrompt && currentLang !== "en" ? { questionLang: "en" } : {}),
               ...(currentLang === "en" && keepEnglishList().length ? { keepEnglishFor: keepEnglishList() } : {}),
               ...(visitorName ? { visitor_name: visitorName } : {}),
@@ -5703,5 +5705,99 @@ ${qa}
     })();
   </script>
 
+
+<!-- ICL-ANALYTICS-2026-11-19: privacy-preserving analytics, see privacy.html.
+     No cookies and nothing stored in the browser. The Worker keeps a daily
+     anonymous visitor code (never the IP address) and the country. -->
+<script>
+(function () {
+  "use strict";
+  var ENDPOINT = "https://icl-chatbot.yadavsatyen17.workers.dev/t";
+  var c = window.crypto || window.msCrypto;
+  if (!c || !c.getRandomValues || !window.JSON) return;
+  var b = new Uint8Array(12); c.getRandomValues(b);
+  var pv = "pv-" + Array.prototype.map.call(b, function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+  window.iclPv = pv; // sent with questions and feedback, to link them to this visit
+  var queue = [], timer = null;
+  function flush(beacon) {
+    clearTimeout(timer); timer = null;
+    if (!queue.length) return;
+    var body = JSON.stringify({ pv: pv, events: queue.splice(0, 40) });
+    try {
+      if (beacon && navigator.sendBeacon && navigator.sendBeacon(ENDPOINT, new Blob([body], { type: "text/plain" }))) return;
+      fetch(ENDPOINT, { method: "POST", body: body, keepalive: true, credentials: "omit", headers: { "Content-Type": "text/plain" } }).catch(function () {});
+    } catch (e) {}
+  }
+  function track(t, n, d, v) {
+    queue.push({ t: t, n: n == null ? undefined : String(n).slice(0, 300), d: d == null ? undefined : String(d).slice(0, 300), v: v });
+    if (queue.length >= 20) flush(false);
+    else if (!timer) timer = setTimeout(function () { flush(false); }, 3000);
+  }
+  window.iclTrack = track;
+
+  // the visit: where from (site only), campaign tags, page, browser language
+  var q = new URLSearchParams(location.search), ref = "";
+  try { ref = document.referrer ? new URL(document.referrer).origin + "/" : ""; } catch (e) {}
+  queue.push({ t: "view", ref: ref, p: location.pathname, l: navigator.language || "",
+    us: q.get("utm_source") || undefined, um: q.get("utm_medium") || undefined, uc: q.get("utm_campaign") || undefined });
+  flush(false);
+
+  // time actually spent on the page: visible and used in the last 30 s
+  var engaged = 0, lastActive = Date.now(), lastTick = Date.now(), maxScroll = 0;
+  ["mousemove", "keydown", "scroll", "touchstart", "click"].forEach(function (ev) {
+    addEventListener(ev, function () { lastActive = Date.now(); }, { passive: true, capture: true });
+  });
+  addEventListener("scroll", function () {
+    var h = document.documentElement.scrollHeight - innerHeight;
+    if (h > 0) maxScroll = Math.max(maxScroll, Math.round((scrollY / h) * 100));
+  }, { passive: true });
+  setInterval(function () {
+    var now = Date.now();
+    if (document.visibilityState === "visible" && now - lastActive < 30000) engaged += (now - lastTick) / 1000;
+    lastTick = now;
+  }, 1000);
+  function leave() { track("leave", null, "scroll " + maxScroll + "%", Math.round(engaged)); flush(true); }
+  addEventListener("pagehide", leave);
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") leave(); });
+
+  // the keyword maps: clicks and the issue slider
+  addEventListener("message", function (e) {
+    var fromMap = ["treemap", "network"].some(function (id) { var f = document.getElementById(id); return f && e.source === f.contentWindow; });
+    if (!fromMap || !e.data) return;
+    if (e.data.iclEvent === "node-click") {
+      var id = String(e.data.id || e.data.label || "");
+      var a = id.indexOf("/<a ");
+      if (a >= 0) id = id.slice(0, a) + " » " + id.slice(a).replace(/<[^>]+>/g, "").replace(/^\//, "");
+      track("map", id.replace(/<br>/g, " "), e.data.source || "");
+    } else if (e.data.iclEvent === "issue-change") {
+      track("issue", e.data.label);
+    }
+  });
+
+  // the assistant and links
+  document.addEventListener("click", function (e) {
+    var el = e.target && e.target.closest ? e.target : null;
+    if (!el) return;
+    var x;
+    if ((x = el.closest("#icl-launcher"))) return track("chat_open", "launcher");
+    if ((x = el.closest("#icl-pill-open"))) return track("chat_open", "pill");
+    if ((x = el.closest("#icl-welcome-ask"))) return track("chat_open", "welcome");
+    if ((x = el.closest("[data-icl-ask],[data-q],.icl-start-item,[data-icl-action]"))) {
+      track("suggestion", x.getAttribute("data-icl-ask") || x.getAttribute("data-q") || x.getAttribute("data-icl-action") || (x.textContent || "").trim().slice(0, 120));
+      if (x.closest("#icl-welcome")) track("chat_open", "welcome");
+      return;
+    }
+    if ((x = el.closest("#icl-lang-menu [data-lang]"))) return track("lang_change", x.getAttribute("data-lang"));
+    if ((x = el.closest(".fullscreen-button"))) { var m = /'(\w+)'/.exec(x.getAttribute("onclick") || ""); return track("fullscreen", m ? m[1] : ""); }
+    if ((x = el.closest("a[href]"))) {
+      var href = x.href || "";
+      if (!/^https?:/i.test(href)) return;
+      var inChat = x.closest("#icl-chat-panel");
+      try { if (!inChat && new URL(href).host === location.host) return; } catch (err) { return; }
+      track(inChat ? "source_click" : "outbound", href.split("#")[0]);
+    }
+  }, true);
+})();
+</script>
 </body>
 </html>

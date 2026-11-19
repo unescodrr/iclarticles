@@ -3901,6 +3901,11 @@ return Plotly;
 
   whenReady(function (gd) {
     // Viz -> Chat: a cell (category / keyword / article) was clicked
+    // ICL-ANALYTICS-2026-11-19: the issue slider, for the page's analytics
+    gd.on('plotly_sliderchange', function (e) {
+      if (parent === window || !e || !e.step) return;
+      parent.postMessage({ iclEvent: 'issue-change', label: e.step.label }, (location.origin === "null" ? "*" : location.origin));
+    });
     gd.on('plotly_click', function (data) {
       if (!data || !data.points || !data.points.length) return;
       var pt = data.points[0];
