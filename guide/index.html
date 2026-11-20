@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User guide | ICL Research Assistant</title>
+  <meta name="description" content="User guide for the ICL Research Assistant, the AI assistant for the ICL Open Access Book Series Progress in Landslide Research and Technology.">
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1b1b; background: #fff; margin: 0; line-height: 1.55; }
+    header { background: #0078D5; color: #fff; padding: 22px 20px; }
+    header .wrap { max-width: 760px; margin: 0 auto; }
+    header h1 { margin: 0; font-size: 22px; }
+    header p { margin: 4px 0 0; opacity: .9; font-size: 14px; }
+    main { max-width: 760px; margin: 0 auto; padding: 24px 20px 48px; }
+    h2 { font-size: 17px; margin-top: 30px; color: #0a4c86; }
+    a { color: #005a9e; }
+    li { margin: 4px 0; }
+    .download { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; background: #eaf3fc; border: 1px solid #d7e9fb; border-radius: 10px; padding: 16px 18px; margin: 18px 0 8px; }
+    .btn { display: inline-block; background: #0c5fa8; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; }
+    .btn:hover { background: #0a4c86; }
+    .meta { color: #4b5563; font-size: 14px; }
+    table { border-collapse: collapse; width: 100%; font-size: 15px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+    th { background: #0c5fa8; color: #fff; font-weight: 600; }
+    footer { max-width: 760px; margin: 0 auto; padding: 0 20px 32px; color: #4b5563; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header><div class="wrap">
+    <h1>ICL Research Assistant: User guide</h1>
+    <p>ICL Open Access Book Series &ldquo;Progress in Landslide Research and Technology&rdquo; &middot; November 2026</p>
+  </div></header>
+  <main>
+    <p>The ICL Research Assistant answers questions about landslide research from the articles of the series, in 12 languages, and cites the source of every statement so you can check it in the original article.</p>
+
+    <div class="download">
+      <a class="btn" id="guide-pdf" href="ICL_Research_Assistant_User_Guide.pdf">Download the user guide (PDF)</a>
+      <span class="meta">7 pages, 1.6 MB &middot; illustrated with screenshots</span>
+    </div>
+
+    <h2>Quick start</h2>
+    <ol>
+      <li><strong>Open</strong> the assistant with the round chat icon in the bottom-right corner of the <a href="../">series webpage</a>.</li>
+      <li><strong>Ask</strong> a question in plain language, in any of 12 languages, or choose a starting point.</li>
+      <li><strong>Check</strong> the article behind each statement with the numbered citations and Show Sources.</li>
+    </ol>
+
+    <h2>What is new in November 2026</h2>
+    <ul>
+      <li>Questions about the series itself: its editors, how to submit an article, the upcoming Volume 5, the Kyoto Landslide Commitment 2020 and the World Landslide Forum.</li>
+      <li>Complete author lists; if a surname is shared, the assistant asks which author you mean.</li>
+      <li>Better follow-up questions, including ones that refer back with words such as &ldquo;the town&rdquo; or &ldquo;the method&rdquo;.</li>
+      <li>Tested before every update on a benchmark of 120 questions in 12 languages.</li>
+      <li>Cookie-free, anonymous usage statistics (see <a href="../privacy.html">Privacy</a>).</li>
+    </ul>
+
+    <h2>Who made it</h2>
+    <p>Developed by the UNESCO Disaster Risk Reduction Unit in collaboration with the International Consortium on Landslides (ICL).</p>
+    <table>
+      <tr><th>Contribution</th><th>Who</th></tr>
+      <tr><td>Design and development of the assistant and this guide</td><td><strong>Satyender Yadav</strong>, UNESCO Disaster Risk Reduction Unit</td></tr>
+      <tr><td>Original idea and coordination</td><td><strong>Soichiro Yasukawa</strong>, UNESCO Disaster Risk Reduction Unit</td></tr>
+      <tr><td>Scientific guidance and expert review</td><td><strong>Shinji Sassa</strong> and <strong>Matja&#382; Miko&#353;</strong>, International Consortium on Landslides</td></tr>
+      <tr><td>Keyword treemap and category network</td><td><strong>Hiroaki Sato</strong></td></tr>
+    </table>
+
+    <h2>Good to know</h2>
+    <p>Answers come only from the articles of the series and are AI-generated: verify key findings in the cited articles and cite the original articles, not the assistant. The assistant does not give emergency or site-specific advice.</p>
+  </main>
+  <footer><a href="../">Back to the Keyword Mapping page</a> | <a href="../privacy.html">Privacy</a></footer>
+<!-- ICL-ANALYTICS-2026-11-19: privacy-preserving analytics, see privacy.html.
+     No cookies and nothing stored in the browser. The Worker keeps a daily
+     anonymous visitor code (never the IP address) and the country. -->
+<script>
+(function () {
+  "use strict";
+  var ENDPOINT = "https://icl-chatbot.yadavsatyen17.workers.dev/t";
+  var c = window.crypto || window.msCrypto;
+  if (!c || !c.getRandomValues || !window.JSON) return;
+  var b = new Uint8Array(12); c.getRandomValues(b);
+  var pv = "pv-" + Array.prototype.map.call(b, function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+  window.iclPv = pv; // sent with questions and feedback, to link them to this visit
+  var queue = [], timer = null;
+  function flush(beacon) {
+    clearTimeout(timer); timer = null;
+    if (!queue.length) return;
+    var body = JSON.stringify({ pv: pv, events: queue.splice(0, 40) });
+    try {
+      if (beacon && navigator.sendBeacon && navigator.sendBeacon(ENDPOINT, new Blob([body], { type: "text/plain" }))) return;
+      fetch(ENDPOINT, { method: "POST", body: body, keepalive: true, credentials: "omit", headers: { "Content-Type": "text/plain" } }).catch(function () {});
+    } catch (e) {}
+  }
+  function track(t, n, d, v) {
+    queue.push({ t: t, n: n == null ? undefined : String(n).slice(0, 300), d: d == null ? undefined : String(d).slice(0, 300), v: v });
+    if (queue.length >= 20) flush(false);
+    else if (!timer) timer = setTimeout(function () { flush(false); }, 3000);
+  }
+  window.iclTrack = track;
+
+  // the visit: where from (site only), campaign tags, page, browser language
+  var q = new URLSearchParams(location.search), ref = "";
+  try { ref = document.referrer ? new URL(document.referrer).origin + "/" : ""; } catch (e) {}
+  queue.push({ t: "view", ref: ref, p: location.pathname, l: navigator.language || "",
+    us: q.get("utm_source") || undefined, um: q.get("utm_medium") || undefined, uc: q.get("utm_campaign") || undefined });
+  flush(false);
+
+  // time actually spent on the page: visible and used in the last 30 s
+  var engaged = 0, lastActive = Date.now(), lastTick = Date.now(), maxScroll = 0;
+  ["mousemove", "keydown", "scroll", "touchstart", "click"].forEach(function (ev) {
+    addEventListener(ev, function () { lastActive = Date.now(); }, { passive: true, capture: true });
+  });
+  addEventListener("scroll", function () {
+    var h = document.documentElement.scrollHeight - innerHeight;
+    if (h > 0) maxScroll = Math.max(maxScroll, Math.round((scrollY / h) * 100));
+  }, { passive: true });
+  setInterval(function () {
+    var now = Date.now();
+    if (document.visibilityState === "visible" && now - lastActive < 30000) engaged += (now - lastTick) / 1000;
+    lastTick = now;
+  }, 1000);
+  function leave() { track("leave", null, "scroll " + maxScroll + "%", Math.round(engaged)); flush(true); }
+  addEventListener("pagehide", leave);
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") leave(); });
+
+  // the keyword maps: clicks and the issue slider
+  addEventListener("message", function (e) {
+    var fromMap = ["treemap", "network"].some(function (id) { var f = document.getElementById(id); return f && e.source === f.contentWindow; });
+    if (!fromMap || !e.data) return;
+    if (e.data.iclEvent === "node-click") {
+      var id = String(e.data.id || e.data.label || "");
+      var a = id.indexOf("/<a ");
+      if (a >= 0) id = id.slice(0, a) + " » " + id.slice(a).replace(/<[^>]+>/g, "").replace(/^\//, "");
+      track("map", id.replace(/<br>/g, " "), e.data.source || "");
+    } else if (e.data.iclEvent === "issue-change") {
+      track("issue", e.data.label);
+    }
+  });
+
+  // the assistant and links
+  document.addEventListener("click", function (e) {
+    var el = e.target && e.target.closest ? e.target : null;
+    if (!el) return;
+    var x;
+    if ((x = el.closest("#icl-launcher"))) return track("chat_open", "launcher");
+    if ((x = el.closest("#icl-pill-open"))) return track("chat_open", "pill");
+    if ((x = el.closest("#icl-welcome-ask"))) return track("chat_open", "welcome");
+    if ((x = el.closest("[data-icl-ask],[data-q],.icl-start-item,[data-icl-action]"))) {
+      track("suggestion", x.getAttribute("data-icl-ask") || x.getAttribute("data-q") || x.getAttribute("data-icl-action") || (x.textContent || "").trim().slice(0, 120));
+      if (x.closest("#icl-welcome")) track("chat_open", "welcome");
+      return;
+    }
+    if ((x = el.closest("#icl-lang-menu [data-lang]"))) return track("lang_change", x.getAttribute("data-lang"));
+    if ((x = el.closest(".fullscreen-button"))) { var m = /'(\w+)'/.exec(x.getAttribute("onclick") || ""); return track("fullscreen", m ? m[1] : ""); }
+    if ((x = el.closest("a[href]"))) {
+      var href = x.href || "";
+      if (!/^https?:/i.test(href)) return;
+      var inChat = x.closest("#icl-chat-panel");
+      try { if (!inChat && new URL(href).host === location.host) return; } catch (err) { return; }
+      track(inChat ? "source_click" : "outbound", href.split("#")[0]);
+    }
+  }, true);
+})();
+</script>
+<script>
+  // Count downloads of the guide (same-site links are not counted by the general tracker).
+  document.getElementById("guide-pdf").addEventListener("click", function () {
+    if (window.iclTrack) window.iclTrack("outbound", this.href);
+  });
+</script>
+</body>
+</html>
